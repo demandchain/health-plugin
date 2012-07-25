@@ -1,7 +1,7 @@
 class SiteController < ApplicationController
 
   def ping
-    render(:text => SITE_PONG)
+    render(:text => (File.exists?(SITE_LB_SEMAPHORE_FILE) ? SITE_PANG : SITE_PONG))
   end
 
   def sha
