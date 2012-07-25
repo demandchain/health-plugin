@@ -1,6 +1,6 @@
 Rails.application.routes.draw do
-  get "site/ping"
-  get "site/sha"
-  get "site/branch"
-  get "site/env"
+  get "monitor/ping"
+  get "monitor/ident"
+  get "monitor/branch"
+  get "monitor/env"
 end

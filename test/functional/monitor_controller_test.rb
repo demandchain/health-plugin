@@ -1,13 +1,14 @@
 require 'test_helper'
 
-class SiteControllerTest < ActionController::TestCase
+class MonitorControllerTest < ActionController::TestCase
+
   test "should get ping" do
     get :ping
     assert_response :success
   end
 
-  test "should get sha" do
-    get :sha
+  test "should get ident" do
+    get :ident
     assert_response :success
   end
 
