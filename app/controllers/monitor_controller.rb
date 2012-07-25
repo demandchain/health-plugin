@@ -1,4 +1,5 @@
 class MonitorController < ApplicationController
+  skip_filter(*_process_action_callbacks.map(&:filter))
 
   def state
     headers["X-Rearden-App-Traffic"] = (File.exists?(MONITOR_LB_SEMAPHORE_FILE) ? "OFF" : "ON")
@@ -10,7 +11,7 @@ class MonitorController < ApplicationController
   end
 
   def ident
-    render(:text => MONITOR_SHA)
+    render(:text => MONITOR_IDENT)
   end
 
   def branch
