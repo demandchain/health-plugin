@@ -2,42 +2,42 @@ class MonitorController < ApplicationController
   skip_filter(*_process_action_callbacks.map(&:filter))
 
   def state
-    headers["X-Rearden-App-Traffic"] = (File.exists?(MONITOR_LB_SEMAPHORE_FILE) ? "OFF" : "ON")
+    headers["#{HealthPlugin.state[:header]}"] = (HealthPlugin.callbacks[:check].call ? HealthPlugin.state[:success] : HealthPlugin.state[:failure])
     render(:nothing => true, :status => 204)
   end
 
   def health
-    headers["X-Site-Ping"] = (File.exists?(MONITOR_LB_SEMAPHORE_FILE) ? MONITOR_PANG : MONITOR_PONG)
-    headers["X-Site-Ident"] = DEPLOYED_IDENT
-    headers["X-Site-Branch"] = DEPLOYED_BRANCH
-    headers["X-Site-Env"] = DEPLOYED_ENV
-    headers["X-Site-Describe"] = DEPLOYED_DESCRIBE
-    headers["X-Site-Timestamp"] = DEPLOYED_TIMESTAMP
+    headers["#{HealthPlugin.health[:header_prefix]}-Ping"] = (HealthPlugin.callbacks[:check].call ? HealthPlugin.state[:success] : HealthPlugin.state[:failure])
+    headers["#{HealthPlugin.health[:header_prefix]}-Ident"] = HealthPlugin.callbacks[:ident].call
+    headers["#{HealthPlugin.health[:header_prefix]}-Branch"] = HealthPlugin.callbacks[:branch].call
+    headers["#{HealthPlugin.health[:header_prefix]}-Env"] = HealthPlugin.callbacks[:env].call
+    headers["#{HealthPlugin.health[:header_prefix]}-Describe"] = HealthPlugin.callbacks[:describe].call
+    headers["#{HealthPlugin.health[:header_prefix]}-Timestamp"] = HealthPlugin.callbacks[:timestamp].call
     render(:nothing => true, :status => 204)
   end
 
   def ping
-    render(:text => (File.exists?(MONITOR_LB_SEMAPHORE_FILE) ? MONITOR_PANG : MONITOR_PONG))
+    render(:text => (HealthPlugin.callbacks[:check].call ? HealthPlugin.state[:success] : HealthPlugin.state[:failure]))
   end
 
   def ident
-    render(:text => DEPLOYED_IDENT)
+    render(:text => HealthPlugin.callbacks[:ident])
   end
 
   def branch
-    render(:text => DEPLOYED_BRANCH)
+    render(:text => HealthPlugin.callbacks[:branch])
   end
 
   def env
-    render(:text => DEPLOYED_ENV)
+    render(:text => HealthPlugin.callbacks[:env])
   end
 
   def describe
-    render(:text => DEPLOYED_DESCRIBE)
+    render(:text => HealthPlugin.callbacks[:describe])
   end
 
   def timestamp
-    render(:text => DEPLOYED_TIMESTAMP)
+    render(:text => HealthPlugin.callbacks[:timestamp])
   end
 
 end
