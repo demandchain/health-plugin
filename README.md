@@ -28,14 +28,14 @@ URI: `/monitor/health`
 
 ### Callbacks
 
-These are various callback hooks which the health plugin uses to determine state information.  You need to use a `Proc` block for all of these with the exception of the `check` callback.
+These are various callback hooks which the health plugin uses to determine state information.
 
-#### `check`
+#### `ping`
 
-Should return a `Boolean` indicating the overall state of the application.  This is mainly used for load balancer checks.  You can check anything you need to in the `Proc` block here.  If the application is able to service requests you should return `True` otherwise `False`.
+Should return a `Boolean` indicating the overall state of the application.  This is mainly used for load balancer pings.  You can ping anything you need to in the `Proc` block here.  If the application is able to service requests you should return `True` otherwise `False`.
 
     HealthPlugin.config do |config|
-      config.callbacks.check = Proc.new do
+      config.callbacks.ping = Proc.new do
         !File.exists?(File.join(Rails.root, ".disabled"))
       end
     end
