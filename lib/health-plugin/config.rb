@@ -7,8 +7,9 @@ module HealthPlugin
 
     METHOD_NAMES = %w( state branch describe env ident ping timestamp )
 
-    callbacks OpenStruct.new
+    prefix "X-App"
 
+    callbacks OpenStruct.new
     METHOD_NAMES.each do |method|
       class_eval <<-EOC, __FILE__, __LINE__ + 1
         callbacks.#{method} = Proc.new do
