@@ -12,7 +12,7 @@ class MonitorController < ApplicationController
         headers["#{HealthPlugin.config.prefix}-#{method.capitalize}"] = result.header
       EOC
     end
-    render(nothing: true, status: 200)
+    render(nothing: true, status: 204)
   end
 
   HealthPlugin::Config::METHOD_NAMES.each do |method|
