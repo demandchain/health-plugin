@@ -4,9 +4,9 @@ This is a Rails (>= 3.1.0) plugin to enable functionality for monitoring of a Ra
 
 No modification of the host Rails application should be required; add the gem to your bundler `Gemfile` and configure the `health-plugin` via an initializer in your host application.
 
-## Initialzer
+## Initializer
 
-You will need an initialzer in your mail Rails application to configure the health-plugin.  Each callback maps to a health-plugin URI for the host application.  Each callback `Proc` should return a `Hash` formatted as follows:
+You will need an initializer in your mail Rails application to configure the health-plugin.  Each callback maps to a health-plugin URI for the host application.  Each callback `Proc` should return a `Hash` formatted as follows:
 
 1. A `header` key and value, in the format "#{key}=#{value}"; this is rendered as a header in the HTTP response for the corresponding health-plugin URI.
 
@@ -14,7 +14,7 @@ You will need an initialzer in your mail Rails application to configure the heal
 
 3. A `status` value; this is rendered as the HTTP response code for the corresponding health-plugin URI.
 
-Here is an example initalizer for the health-plugin:
+Here is an example initializer for the health-plugin:
 
     HealthPlugin.config do |config|
 
