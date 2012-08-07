@@ -8,7 +8,7 @@ No modification of the host Rails application should be required; add the gem to
 
 You will need an initializer in your mail Rails application to configure the health-plugin.  Each callback maps to a health-plugin URI for the host application.  Each callback `Proc` should return a `Hash` formatted as follows:
 
-1. A `header` key and value, in the format "#{key}=#{value}"; this is rendered as a header in the HTTP response for the corresponding health-plugin URI.
+1. A `header` value, in the format `"#{key}=#{value}"`; this is rendered as a header in the HTTP response for the corresponding health-plugin URI.
 
 2. A `body` value; this is rendered as the body of the HTTP response for the corresponding health-plugin URI.
 
