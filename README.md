@@ -14,6 +14,8 @@ You will need an initializer in your mail Rails application to configure the hea
 
 3. A `status` value; this is rendered as the HTTP response code for the corresponding health-plugin URI.
 
+The following callbacks exists: `ping ident branch env describe timestamp`
+
 Here is an example initializer for the health-plugin:
 
     HealthPlugin.config do |config|
