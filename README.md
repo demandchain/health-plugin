@@ -2,93 +2,85 @@
 
 This is a Rails (>= 3.1.0) plugin to enable functionality for monitoring of a Rails application via the Offers Health Application.
 
-No modification of the host Rails application should be required.  Keep in mind this namespace is now isolated!
+No modification of the host Rails application should be required; add the gem to your bundler `Gemfile` and configure the `health-plugin` via an initializer in your host application.
 
-## Configuration
+## Initialzer
 
-There are two main URIs to the health plugin.  The first is the state URI, which is meant for load balancers and other hardward that can switch state based on the header returned.  The second is the health URI which is meant for the dashboard.
+You will need an initialzer in your mail Rails application to configure the health-plugin.  Each callback maps to a health-plugin URI for the host application.  Each callback `Proc` should return a `Hash` formatted as follows:
 
-### State
+1. A `header` key and value, in the format "#{key}=#{value}"; this is rendered as a header in the HTTP response for the corresponding health-plugin URI.
 
-URI: `/monitor/state`
+2. A `body` value; this is rendered as the body of the HTTP response for the corresponding health-plugin URI.
 
-    HealthPlugin.config do |config|
-      config.state.header = "X-Rearden-App-Traffic"
-      config.state.success = "ON"
-      config.state.failure = "OFF"
-    end
+3. A `status` value; this is rendered as the HTTP response code for the corresponding health-plugin URI.
 
-### Health
-
-URI: `/monitor/health`
+Here is an example initalizer for the health-plugin:
 
     HealthPlugin.config do |config|
-      config.health.header_prefix = "X-App"
-    end
 
-### Callbacks
-
-These are various callback hooks which the health plugin uses to determine state information.
-
-#### `ping`
-
-Should return a `Boolean` indicating the overall state of the application.  This is mainly used for load balancer pings.  You can ping anything you need to in the `Proc` block here.  If the application is able to service requests you should return `True` otherwise `False`.
-
-    HealthPlugin.config do |config|
-      config.callbacks.ping = Proc.new do
-        !File.exists?(File.join(Rails.root, ".disabled"))
+      config.callbacks.state = Proc.new do
+        state = (!File.exists?(File.join(Rails.root, ".disabled")) ? "ON" : "OFF")
+        {
+          header: "X-Rearden-App-Traffic=#{state}",
+          body: nil,
+          status: 204
+        }
       end
-    end
 
-#### `ident`
-
-Should return a `String` providing a way to identify this deployment.  In the case of Git, this would be the SHA of the deployed branch.
-
-    HealthPlugin.config do |config|
-      config.callbacks.ident = Proc.new do
-        (IO.read(File.join(Rails.root, "REVISION")) rescue "N/A")
-      end
-    end
-
-#### `branch`
-
-Should return a `String` providing the current branch that is deployed.
-
-    HealthPlugin.config do |config|
       config.callbacks.branch = Proc.new do
-        (IO.read(File.join(Rails.root, "BRANCH")) rescue "N/A")
+        branch = (IO.read(File.join(Rails.root, "BRANCH")) rescue "N/A")
+        {
+          header: "X-Offers-Branch=#{branch}",
+          body: branch,
+          status: 200
+        }
       end
-    end
 
-#### `env`
-
-Should return a `String` providing the environment of the application (i.e. development, staging, production, etc.).
-
-    HealthPlugin.config do |config|
-      config.callbacks.env = Proc.new do
-        Rails.env
-      end
-    end
-
-#### `describe`
-
-Should return a `String` providing concise version information for the current deployment.  In the case of Git, this would be the `git describe` command.
-
-    HealthPlugin.config do |config|
       config.callbacks.describe = Proc.new do
         describe = %x(git describe 2>/dev/null).chomp
-        (describe.present? ? describe : "N/A")
+        describe.blank? and describe = "N/A"
+        {
+          header: "X-Offers-Describe=#{describe}",
+          body: describe,
+          status: 200
+        }
       end
-    end
 
+      config.callbacks.env = Proc.new do
+        env = Rails.env
+        {
+          header: "X-Offers-Env=#{env}",
+          body: env,
+          status: 200
+        }
+      end
 
-#### `timestamp`
+      config.callbacks.ident = Proc.new do
+        ident = (IO.read(File.join(Rails.root, "REVISION")) rescue "N/A")
+        {
+          header: "X-Offers-Ident=#{ident}",
+          body: ident,
+          status: 200
+        }
+      end
 
-Should return a `String` providing the timestamp of when the application was deployed or when the last commit on the currently deployed branch was.
+      config.callbacks.ping = Proc.new do
+        ping = (!File.exists?(File.join(Rails.root, ".disabled")) ? "ON" : "OFF")
+        {
+          header: "X-Offers-Ping=#{ping}",
+          body: ping,
+          status: 200
+        }
+      end
 
-    HealthPlugin.config do |config|
       config.callbacks.timestamp = Proc.new do
-        timestamp = %x(git log -1 --pretty=format:"%aD" 2>/dev/null).chomp
-        (timestamp.present? ? timestamp : "N/A")
+        timestamp = %x(git log -1 --pretty=format:"%aD" 2>/dev/null).chomp || "N/A"
+        timestamp.blank? and timestamp = "N/A"
+        {
+          header: "X-Offers-Timestamp=#{timestamp}",
+          body: timestamp,
+          status: 200
+        }
       end
+
     end
