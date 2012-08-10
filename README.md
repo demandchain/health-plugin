@@ -25,7 +25,7 @@ Here is an example initializer for the health-plugin:
       config.prefix = "X-Rearden"
 
       config.callbacks.state = Proc.new do
-        state = (!File.exists?(File.join(Rails.root, ".disabled")) ? "ON" : "OFF")
+        state = (File.exists?(File.join(Rails.root, ".disabled")) ? "OFF" : "ON")
         {
           header: state,
           body: nil,
@@ -71,7 +71,7 @@ Here is an example initializer for the health-plugin:
       end
 
       config.callbacks.ping = Proc.new do
-        ping = (!File.exists?(File.join(Rails.root, ".disabled")) ? "ON" : "OFF")
+        ping = (File.exists?(File.join(Rails.root, ".disabled")) ? "PANG" : "PONG")
         {
           header: ping,
           body: ping,
