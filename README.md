@@ -72,10 +72,11 @@ Here is an example initializer for the health-plugin:
 
       config.callbacks.ping = Proc.new do
         ping = (File.exists?(File.join(Rails.root, ".disabled")) ? "PANG" : "PONG")
+        status = (File.exists?(File.join(Rails.root, ".disabled")) ? 501 : 200)
         {
           header: ping,
           body: ping,
-          status: 200
+          status: status
         }
       end
 
