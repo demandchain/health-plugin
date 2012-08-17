@@ -1,5 +1,4 @@
-class MonitorController < ApplicationController
-  skip_filter(*_process_action_callbacks.map(&:filter))
+class HealthPluginController < ActionController::Base
 
   def health
     HealthPlugin::Config::METHOD_NAMES.each do |method|
@@ -30,3 +29,4 @@ class MonitorController < ApplicationController
   end
 
 end
+

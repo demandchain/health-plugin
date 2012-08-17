@@ -1,14 +1,10 @@
-Rails.application.routes.draw do
-
-  get "monitor/health"
+# Rails.application.routes.draw do
+#   mount HealthPlugin::Engine => "/monitor"
+#   mount HealthPlugin::Engine => "/site"
+# end
+HealthPlugin::Engine.routes.draw do
+  get "health"
   HealthPlugin::Config::METHOD_NAMES.each do |method|
-    get "monitor/#{method}"
+    get method
   end
-
-  # TODO: needs to be eventually removed; put here for backward compatibility
-  get "site/health"
-  HealthPlugin::Config::METHOD_NAMES.each do |method|
-    get "site/#{method}"
-  end
-
 end
