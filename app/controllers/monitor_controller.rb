@@ -1,4 +1,4 @@
-# class HealthPluginController < ActionController::Base
+#class MonitorController < ActionController::Base
 
 #   def health
 #     HealthPlugin::Config::METHOD_NAMES.each do |method|
