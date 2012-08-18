@@ -19,7 +19,7 @@ module HealthPlugin
       def self.#{method}
         result = HealthPlugin.config.callbacks.#{method}.call
         !result.is_a?(Hash) and raise("Callback Proc '#{method}' must return a Hash object!")
-        OpenStruct.new({ status: 200 }.merge(result))
+        OpenStruct.new({ :status => 200 }.merge(result))
       end
     EOC
   end
