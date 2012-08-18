@@ -5,7 +5,9 @@ module HealthPlugin
   class Config
     extend(::Mixlib::Config)
 
-    METHOD_NAMES = %w( state branch describe env ident ping timestamp )
+    checks %w( state branch describe env ident ping timestamp )
+
+    mounts %w(monitor)
 
     prefix "X-App"
 
@@ -16,7 +18,7 @@ module HealthPlugin
         state = (File.exists?(File.join(Rails.root,monitor_semaphore_file)) ? "OFF" : "ON")
         {
           header: state,
-          body: nil,
+          body: "",
           status: 204
         }
       },
@@ -46,7 +48,8 @@ module HealthPlugin
         }
       },
       :ident => Proc.new {
-        ident = (IO.read(File.join(Rails.root, "REVISION")) rescue "N/A")
+        ident = %x(git rev-parse --verify HEAD 2>/dev/null).chomp
+        ident.blank? and ident = "N/A"
         {
           header: ident,
           body: ident,

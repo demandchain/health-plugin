@@ -1,6 +1,8 @@
 require "ostruct"
 require "health-plugin/config"
+require "health-plugin/rack/monitor"
 require "health-plugin/engine"
+
 
 module HealthPlugin
 
@@ -12,7 +14,7 @@ module HealthPlugin
     end
   end
 
-  HealthPlugin::Config::METHOD_NAMES.each do |method|
+  HealthPlugin::Config.checks.each do |method|
     class_eval <<-EOC, __FILE__, __LINE__ + 1
       def self.#{method}
         result = HealthPlugin.config.callbacks.#{method}.call
