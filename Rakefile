@@ -23,7 +23,6 @@ end
 APP_RAKEFILE = File.expand_path("../spec/dummy/Rakefile", __FILE__)
 load 'rails/tasks/engine.rake'
 
-
 #Bundler::GemHelper.install_tasks
 
 #require 'rake/testtask'
@@ -34,6 +33,5 @@ load 'rails/tasks/engine.rake'
 #  t.pattern = 'test/**/*_test.rb'
 #  t.verbose = true
 #end
-
 
 task :default => :spec

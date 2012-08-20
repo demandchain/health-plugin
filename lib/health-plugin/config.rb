@@ -7,15 +7,15 @@ module HealthPlugin
 
     checks %w( state branch describe env ident ping timestamp )
 
-    mounts %w(monitor)
+    mounts %w( monitor site )
 
     prefix "X-App"
 
-    monitor_semaphore_file ".disabled"
+    semaphore_file ".disabled"
 
     callbacks OpenStruct.new({
       :state => Proc.new {
-        state = (File.exists?(File.join(Rails.root,monitor_semaphore_file)) ? "OFF" : "ON")
+        state = (File.exists?(File.join(Rails.root,semaphore_file)) ? "OFF" : "ON")
         {
           :header => state,
           :body => "",
@@ -57,8 +57,8 @@ module HealthPlugin
         }
       },
       :ping => Proc.new {
-        ping = (File.exists?(File.join(Rails.root, monitor_semaphore_file)) ? "PANG" : "PONG")
-        status = (File.exists?(File.join(Rails.root, monitor_semaphore_file)) ? 501 : 200)
+        ping = (File.exists?(File.join(Rails.root, semaphore_file)) ? "PANG" : "PONG")
+        status = (File.exists?(File.join(Rails.root, semaphore_file)) ? 501 : 200)
         {
           :header => ping,
           :body => ping,

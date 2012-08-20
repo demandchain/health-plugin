@@ -2,36 +2,38 @@ require "spec_helper"
 
 describe "HealthPlugin::Engine requests" do
 
-  before(:each) { @routes = HealthPlugin::Engine.routes }
+  HealthPlugin.config do |config|
+    config.mounts.each do |mount|
+      config.checks.each do |check|
 
-  it "gets '/monitor/health'" do
-    get("/monitor/health")
-    assert_response :success
-  end
+        uri = "/#{mount}/#{check}"
+        header_tag = "#{config.prefix}-#{check.capitalize}"
 
-  it "gets '/monitor/ident'" do
-    get("/monitor/ident")
-    assert_response :success
-  end
+        it "gets '#{uri}'" do
+          get uri
+          assert_response :success
+        end
 
-  it "gets '/monitor/env'" do
-    get("/monitor/env")
-    assert_response :success
-  end
+        it "supplies header '#{header_tag}' on get '#{uri}'" do
+          get uri
+          headers[header_tag].nil?.should_not be true
+        end
 
-  it "gets '/monitor/branch'" do
-    get("/monitor/branch")
-    assert_response :success
-  end
+        it "supplies content in header '#{header_tag}' on get '#{uri}'" do
+          get uri
+          headers[header_tag].blank?.should_not be true
+          headers[header_tag].length.should be >= 1
+        end
 
-  it "gets '/monitor/state'" do
-    get("/monitor/state")
-    assert_response :success
-  end
+        it "supplied content in header '#{header_tag}' on get '#{uri}' which matches plugin defaults" do
+          result = eval("HealthPlugin.#{check}")
 
-  it "gets '/monitor/describe'" do
-    get("/monitor/describe")
-    assert_response :success
+          get uri
+          headers[header_tag].should eq result.header
+        end
+
+      end
+    end
   end
 
 end
