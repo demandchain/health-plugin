@@ -1,6 +1,6 @@
 require "spec_helper"
 
-describe "HealthPlugin::Engine requests" do
+describe "HealthPlugin::Engine default requests" do
 
   HealthPlugin.config do |config|
     config.mounts.each do |mount|
