@@ -26,7 +26,7 @@ module HealthPlugin
 
   def self.paths
     @@health_plugin_paths ||= self.config.mounts.uniq.inject([]) do |memo, mount|
-      memo += self.config.checks.collect{ |check| "/#{mount}/#{check}" }
+      memo += (self.config.checks + %w( health )).collect{ |check| "/#{mount}/#{check}" }.uniq
     end
   end
 
