@@ -24,4 +24,10 @@ module HealthPlugin
     EOC
   end
 
+  def self.paths
+    @@health_plugin_paths ||= self.config.mounts.uniq.inject([]) do |memo, mount|
+      memo += self.config.checks.collect{ |check| "/#{mount}/#{check}" }
+    end
+  end
+
 end
