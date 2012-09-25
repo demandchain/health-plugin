@@ -17,7 +17,8 @@ module HealthPlugin
           [204, result.merge({ 'Content-Type' => 'text/html', 'Content-Length' => "0" }), []]
         elsif method = HealthPlugin::Config.checks.find{|check| req.path =~ /^\/(#{HealthPlugin::Config.mounts.join("|")})\/#{check.to_s}\/?$/}
           result = HealthPlugin.send(method)
-          [result.status, { "#{HealthPlugin.config.prefix}-#{method.capitalize}" => result.header  ,'Content-Type' => 'text/html', 'Content-Length' => result.body.size.to_s }, [result.body]]
+          body = (result.body || '')
+          [result.status, { "#{HealthPlugin.config.prefix}-#{method.capitalize}" => result.header  ,'Content-Type' => 'text/html', 'Content-Length' => body.size.to_s }, [body]]
         else
           @app.call(env)
         end
@@ -27,5 +28,3 @@ module HealthPlugin
   end
 
 end
-
-
