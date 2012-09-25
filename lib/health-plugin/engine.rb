@@ -7,5 +7,3 @@ module HealthPlugin
   end
 
 end
-
-
