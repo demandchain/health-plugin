@@ -18,61 +18,50 @@ The following callbacks exists: `state branch describe env ident ping timestamp`
 
 All headers are prefixed with the value from `config.prefix`.  In the example below; the `env` callback, for example, would end up with `X-Rearden-Env` as it's header.
 
-Here is an example initializer for the health-plugin:
+Here is an example initializer for the health-plugin from UMD:
+
+    module Health
+      class << self
+
+        def ping
+          ping = Array.new
+          ping << disabled
+          ping << galaxy
+          ping << redis
+          ping.compact.join('|')
+        end
+
+        def disabled
+          File.exists?(File.join(Rails.root, ".disabled")) and return "PANG DISABLED"
+          nil
+        end
+
+        def redis
+          Redis.current.info and return "PONG REDIS"
+          "PANG REDIS"
+        rescue Exception => e
+          "PANG REDIS #{e.inspect}"
+        end
+
+        def galaxy
+          site = URI(Galaxy::Base.site.to_s.dup)
+          site.path = "/site/ping"
+          Array(200..299).include?(Net::HTTP.get_response(site).code.to_i) and return "PONG GALAXY"
+          "PANG GALAXY"
+        rescue Exception => e
+          "PANG GALAXY #{e.inspect}"
+        end
+
+      end
+    end
 
     HealthPlugin.config do |config|
-
       config.prefix = "X-Rearden"
-
-      config.callbacks.state = Proc.new do
-        state = (File.exists?(File.join(Rails.root, ".disabled")) ? "OFF" : "ON")
-        {
-          header: state,
-          body: nil,
-          status: 204
-        }
-      end
-
-      config.callbacks.branch = Proc.new do
-        branch = (IO.read(File.join(Rails.root, "BRANCH")) rescue "N/A")
-        {
-          header: branch,
-          body: branch,
-          status: 200
-        }
-      end
-
-      config.callbacks.describe = Proc.new do
-        describe = %x(git describe 2>/dev/null).chomp
-        describe.blank? and describe = "N/A"
-        {
-          header: describe,
-          body: describe,
-          status: 200
-        }
-      end
-
-      config.callbacks.env = Proc.new do
-        env = Rails.env
-        {
-          header: env,
-          body: env,
-          status: 200
-        }
-      end
-
-      config.callbacks.ident = Proc.new do
-        ident = (IO.read(File.join(Rails.root, "REVISION")) rescue "N/A")
-        {
-          header: ident,
-          body: ident,
-          status: 200
-        }
-      end
+      config.mounts += %w( site )
 
       config.callbacks.ping = Proc.new do
-        ping = (File.exists?(File.join(Rails.root, ".disabled")) ? "PANG" : "PONG")
-        status = (File.exists?(File.join(Rails.root, ".disabled")) ? 501 : 200)
+        ping = Health.ping
+        status = (ping =~ /PANG/ ? 501 : 200)
         {
           header: ping,
           body: ping,
@@ -80,13 +69,13 @@ Here is an example initializer for the health-plugin:
         }
       end
 
-      config.callbacks.timestamp = Proc.new do
-        timestamp = %x(git log -1 --pretty=format:"%aD" 2>/dev/null).chomp || "N/A"
-        timestamp.blank? and timestamp = "N/A"
+      config.callbacks.state = Proc.new do
+        ping = Health.ping
+        state = (ping =~ /PANG/ ? 'OFF' : 'ON')
         {
-          header: timestamp,
-          body: timestamp,
-          status: 200
+          header: state,
+          body: nil,
+          status: 204
         }
       end
 
