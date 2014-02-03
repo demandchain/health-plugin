@@ -1,4 +1,4 @@
-# Offers Health Plugin
+# Health Plugin
 
 This is a Rails (>= 3.1.0) plugin to enable functionality for monitoring of a Rails application.
 
