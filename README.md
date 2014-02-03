@@ -1,6 +1,6 @@
 # Offers Health Plugin
 
-This is a Rails (>= 3.1.0) plugin to enable functionality for monitoring of a Rails application via the Offers Health Application.
+This is a Rails (>= 3.1.0) plugin to enable functionality for monitoring of a Rails application.
 
 No modification of the host Rails application should be required; add the gem to your bundler `Gemfile` and configure the `health-plugin` via an initializer in your host application.
 
@@ -16,9 +16,9 @@ You will need an initializer in your mail Rails application to configure the hea
 
 The following callbacks exists: `state branch describe env ident ping timestamp`
 
-All headers are prefixed with the value from `config.prefix`.  In the example below; the `env` callback, for example, would end up with `X-Rearden-Env` as it's header.
+All headers are prefixed with the value from `config.prefix`.  In the example below; the `env` callback, for example, would end up with `X-Company-Env` as it's header.
 
-Here is an example initializer for the health-plugin from UMD:
+Here is an example initializer for the health-plugin:
 
     module Health
       class << self
@@ -44,26 +44,26 @@ Here is an example initializer for the health-plugin from UMD:
         end
 
         def galaxy
-          site = URI(Galaxy::Base.site.to_s.dup)
+          site = URI(SomeApp::Base.site.to_s.dup)
           site.path = "/site/ping"
-          Array(200..299).include?(Net::HTTP.get_response(site).code.to_i) and return "PONG GALAXY"
-          "PANG GALAXY"
+          Array(200..299).include?(Net::HTTP.get_response(site).code.to_i) and return "PONG SOMEAPP"
+          "PANG SOMEAPP"
         rescue Exception => e
-          "PANG GALAXY #{e.inspect}"
+          "PANG SOMEAPP #{e.inspect}"
         end
 
       end
     end
 
     HealthPlugin.config do |config|
-      config.prefix = "X-Rearden"
+      config.prefix = "X-Company"
       config.mounts += %w( site )
 
       config.callbacks.ping = Proc.new do
         ping = Health.ping
         status = (ping =~ /PANG/ ? 501 : 200)
         {
-          header: ping,
+          header: ping, d
           body: ping,
           status: status
         }
@@ -80,3 +80,5 @@ Here is an example initializer for the health-plugin from UMD:
       end
 
     end
+
+Your loadbalancer can then call these endpoints to make intelligent forwarding decisions.  You can also call these directly with curl for diagnostic purposes.
